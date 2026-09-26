@@ -1,4 +1,5 @@
 using System;
+using TarodevController;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -6,26 +7,46 @@ public class Shooting : MonoBehaviour
 {
     private Camera mainCamera;
     private float timer;
+
     [SerializeField] private float fireRate;
     [SerializeField] private GameObject bullet;
     [SerializeField] private Transform bulletSpawner;
 
-    private bool toggle = false; // for testing
 
+
+    [SerializeField] private float heat;
+    [SerializeField] private float heatIncreaseRate;
+    [SerializeField] private float coolDownRate;
+    [SerializeField] private float maxHeat;
+
+
+    [SerializeField] private SpriteRenderer gunAppearence;
+    private Color normalColor = Color.white;
+    private Color hotColor = Color.red;
+
+
+
+    private PlayerController player;
+
+
+    private bool toggle = false; // for testing
     private bool canFire = true;
+
 
 
     void Start()
     {
         mainCamera = Camera.main;
+        player = GetComponentInParent<PlayerController>();
     }
 
     // Update is called once per frame
     void Update()
     {
-        followMouse();
-        shoot();
-
+        FollowMouse();
+        Shoot();
+        ManageHeat();
+        UpdateGunColor();
         //for testing
         if (Keyboard.current.ctrlKey.wasPressedThisFrame)
         {
@@ -35,7 +56,7 @@ public class Shooting : MonoBehaviour
     }
 
 
-    void followMouse()
+    void FollowMouse()
     {
         Vector3 mousePos = Mouse.current.position.ReadValue();
         Vector3 mouseWorldPos = mainCamera.ScreenToWorldPoint(mousePos);
@@ -48,7 +69,7 @@ public class Shooting : MonoBehaviour
     }
 
 
-    void shoot()
+    void Shoot()
     {
 
         if (!canFire)
@@ -66,8 +87,41 @@ public class Shooting : MonoBehaviour
         {
             Instantiate(bullet, bulletSpawner.position, Quaternion.identity);
             canFire = false;
+
+
+        }
+        if (!player.inWater && toggle)
+        {
+            // Increase heat every time a bullet is fired
+            heat += heatIncreaseRate * Time.deltaTime;
         }
 
+
+    }
+
+
+    void ManageHeat()
+    {
+        if (player.inWater)
+        {
+            heat -= coolDownRate * Time.deltaTime;
+        }
+
+        heat = Mathf.Clamp(heat, 0, maxHeat);
+
+        if (heat >= maxHeat)
+        {
+            // Player dies here
+            Debug.Log("TOO HOT!");
+        }
+    }
+
+
+    void UpdateGunColor()
+    {
+        // gun gets increasingly red the hotter it gets
+        float heatPercent = heat / maxHeat;
+        gunAppearence.color = Color.Lerp(normalColor, hotColor, heatPercent);
 
     }
 

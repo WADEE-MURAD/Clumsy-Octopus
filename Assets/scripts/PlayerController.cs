@@ -7,6 +7,13 @@ namespace TarodevController
     [RequireComponent(typeof(Rigidbody2D), typeof(Collider2D))]
     public class PlayerController : MonoBehaviour, IPlayerController
     {
+
+        public bool inWater = false;
+
+
+
+
+
         [SerializeField] private ScriptableStats _stats;
         private Rigidbody2D _rb;
         private CapsuleCollider2D _col;
@@ -228,6 +235,29 @@ namespace TarodevController
             if (_stats == null) Debug.LogWarning("Please assign a ScriptableStats asset to the Player Controller's Stats slot", this);
         }
 #endif
+
+
+
+        // ================ check if player is in water ================
+        private void OnTriggerEnter2D(Collider2D collision)
+        {
+            if (collision.CompareTag("Water"))
+            {
+                inWater = true;
+            }
+        }
+
+        private void OnTriggerExit2D(Collider2D collision)
+        {
+            if (collision.CompareTag("Water"))
+            {
+                inWater = false;
+            }
+        }
+
+
+
+
     }
 
     public struct FrameInput
@@ -243,4 +273,5 @@ namespace TarodevController
         public event Action Jumped;
         public Vector2 FrameInput { get; }
     }
+
 }
