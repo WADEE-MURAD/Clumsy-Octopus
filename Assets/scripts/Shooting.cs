@@ -11,6 +11,7 @@ public class Shooting : MonoBehaviour
     [SerializeField] private float fireRate;
     [SerializeField] private GameObject bullet;
     [SerializeField] private Transform bulletSpawner;
+    [SerializeField] private Transform playerTransform;
 
 
 
@@ -65,7 +66,19 @@ public class Shooting : MonoBehaviour
 
         float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
 
-        transform.rotation = Quaternion.Euler(0f, 0f, angle);
+        transform.localRotation = Quaternion.Euler(0f, 0f, angle);
+
+        if (angle > 90 || angle < -90)
+        {
+            playerTransform.localScale = new Vector3(-1, 1, 1);
+            transform.localScale = new Vector3(1, -1, 1);
+        }
+        else
+        {
+            playerTransform.localScale = new Vector3(1, 1, 1);
+            transform.localScale = new Vector3(1, 1, 1);
+
+        }
     }
 
 
